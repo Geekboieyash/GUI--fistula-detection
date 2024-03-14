@@ -50,3 +50,9 @@ class DetectionPage(tk.Frame):
         subprocess.Popen(["jupyter", "notebook", notebook_file])
 
 # Remaining code for creating the GUI and other pages
+
+# Example usage:
+root = tk.Tk()
+detection_page = DetectionPage(root, None)  # Replace None with your controller instance
+detection_page.pack(fill="both", expand=True)
+root.mainloop()
