@@ -7,7 +7,7 @@ class MainApplication(tk.Tk):
         super().__init__(*args, **kwargs)
         
         self.title("Hand Fistula detection")
-        self.geometry("800x700")
+        self.geometry("1000x700")
         
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)

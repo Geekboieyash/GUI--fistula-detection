@@ -36,45 +36,31 @@ class RegisterPage(tk.Frame):
         button = tk.Button(container, text="Register", command=lambda: self.get_signup(), bg='#4CAF50', fg='#ffffff')
         button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
-        # upload_button = tk.Button(self, text='Upload Image', command=lambda: upload_image, bg='#4CAF50', fg='#ffffff')
-        # upload_button.pack(pady=10)
+        self.image_label = tk.Label(self)
+        self.image_label.pack()
 
-        # self.dataset_label = tk.Label(self, text='Dataset will be generated after submission.', bg='#f0f0f0')
-        # self.dataset_label.pack()
-
-        # def upload_image(self):
-        #     file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png *.jpg *.jpeg')])
-        # Add code here to process the uploaded image
-
-
-        def get_signup():
-            SignupPage()
-    
     def login(self):
         username = self.entry_user.get()
         password = self.entry_pw.get()
         validation = self.validate_user(username, password)
         if validation:
             messagebox.showinfo("Login Successful", f"Welcome {username}")
-        # Navigate to the appropriate page after successful login
-            self.controller.show_frame("DetectionPage")
+            self.controller.show_frame("DetectionPage")  # Show the DetectionPage after successful login
         else:
             messagebox.showerror("Error", "Invalid username or password")
 
-        
     def validate_user(self, username, password):
         # Checks the text file for a username/password combination.
-     try:
-         with open("credentials.txt", "r") as credentials:
-             for line in credentials:
-                 line = line.strip().split(",")
-                 if len(line) >= 4 and line[1] == username and line[3] == password:
-                    return True
-         return False
-     except FileNotFoundError:
-         print("Validation false")
-         return False
-
+        try:
+            with open("credentials.txt", "r") as credentials:
+                for line in credentials:
+                    line = line.strip().split(",")
+                    if len(line) >= 4 and line[1] == username and line[3] == password:
+                        return True
+            return False
+        except FileNotFoundError:
+            print("Validation false")
+            return False
         
 
 class SignupPage(tk.Tk):
