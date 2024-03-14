@@ -1,30 +1,52 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
+# from tkinter import filedialog
 
 class RegisterPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
         
-        label_user = tk.Label(self, text="New Username:")
-        label_user.grid(row=0, column=0, padx=10, pady=10)
+        style = ttk.Style()
+        style.configure("HandFistula.TFrame", background="#f9f9f9", borderwidth=1, relief="solid")
+        style.configure("TLabel", font=("Arial", 10))
+        style.configure("TEntry", padding=8, borderwidth=1, relief="solid")
+        style.configure("TButton", padding=(10, 20), background="#4CAF50", foreground="white")
+        style.map("TButton", background="#4CAF50", foreground="white")
 
-        label_pw = tk.Label(self, text="New Password:")
-        label_pw.grid(row=1, column=0, padx=10, pady=10)
+        container = ttk.Frame(self, style="HandFistula.TFrame")
+        container.pack(padx=20, pady=20)
 
-        self.entry_user = ttk.Entry(self, width=20, cursor="xterm")
-        self.entry_user.grid(row=0, column=1, padx=10, pady=10)
+        label_user = ttk.Label(container, text="Username:")
+        label_user.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-        self.entry_pw = ttk.Entry(self, width=20, cursor="xterm", show="*")
-        self.entry_pw.grid(row=1, column=1, padx=10, pady=10)
+        label_pw = ttk.Label(container, text="Password:")
+        label_pw.grid(row=1, column=0, padx=10, pady=10, sticky="w")
 
-        login_button = ttk.Button(self, text="Login", command=self.login)
-        login_button.grid(row=2, column=0, padx=10, pady=10)
+        self.entry_user = ttk.Entry(container, width=20, cursor="xterm", style="TEntry")
+        self.entry_user.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+
+        self.entry_pw = ttk.Entry(container, width=20, cursor="xterm", show="*", style="TEntry")
+        self.entry_pw.grid(row=1, column=1, padx=10, pady=10, sticky="w")
+
+        login_button = tk.Button(container, text="Login", command=self.login, bg='#4CAF50', fg='#ffffff')
+        login_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+
+        button = tk.Button(container, text="Register", command=lambda: self.get_signup(), bg='#4CAF50', fg='#ffffff')
+        button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
+
+        # upload_button = tk.Button(self, text='Upload Image', command=lambda: upload_image, bg='#4CAF50', fg='#ffffff')
+        # upload_button.pack(pady=10)
+
+        # self.dataset_label = tk.Label(self, text='Dataset will be generated after submission.', bg='#f0f0f0')
+        # self.dataset_label.pack()
+
+        # def upload_image(self):
+        #     file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png *.jpg *.jpeg')])
+        # Add code here to process the uploaded image
 
 
-        button = ttk.Button(self, text="Regsiter", command=lambda: get_signup())
-        button.grid(row=2, column=1, padx=10, pady=10)
         def get_signup():
             SignupPage()
     
@@ -35,7 +57,7 @@ class RegisterPage(tk.Frame):
         if validation:
             messagebox.showinfo("Login Successful", f"Welcome {username}")
         # Navigate to the appropriate page after successful login
-            self.controller.show_frame("OtherPage")
+            self.controller.show_frame("DetectionPage")
         else:
             messagebox.showerror("Error", "Invalid username or password")
 
