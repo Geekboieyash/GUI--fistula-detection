@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 import os
-from PIL import Image, ImageTk
-import cv2
+import shutil
+import subprocess
 
 class DetectionPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -12,23 +13,22 @@ class DetectionPage(tk.Frame):
         self.uploaded_image_path = None
         
         self.create_widgets()
-
-    def create_widgets(self):
         
+    def create_widgets(self):
         style = ttk.Style()
         style.configure("HandFistula.TFrame", background="#f9f9f9", borderwidth=1, relief="solid")
         style.configure("TLabel", font=("Arial", 10))
         style.configure("TEntry", padding=8, borderwidth=1, relief="solid")
         style.configure("TButton", padding=(10, 20), background="#4CAF50", foreground="white")
-        style.map("TButton", background="#4CAF50", foreground="white")
+        style.map("TButton", background=[("active", "#45a049")])
 
-        container = ttk.Frame(self, style="HandFistula.TFrame", width=300, height=200)
+        container = ttk.Frame(self, style="HandFistula.TFrame")
         container.pack(padx=20, pady=20)
 
         label_title = ttk.Label(container, text="Choose Detection Type", style="TLabel")
         label_title.grid(row=0, column=0, columnspan=2, pady=10)
-        
-        veins_button = tk.Button(container, text="Veins Detection", command=lambda: self.veins_detection(), bg='#4CAF50', fg='#ffffff')
+
+        veins_button = tk.Button(container, text="Veins Detection", command=self.veins_detection, bg='#4CAF50', fg='#ffffff')
         veins_button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
         upload_button = tk.Button(container, text="Upload Image", command=self.upload_image, bg='#4CAF50', fg='#ffffff')
@@ -39,45 +39,49 @@ class DetectionPage(tk.Frame):
 
     def veins_detection(self):
         if self.uploaded_image_path:
-            # Perform vein detection on the uploaded image
-            result_image = self.detect_veins(self.uploaded_image_path)
-            
-            # Display the result image
-            self.display_image(result_image)
-        
-    def detect_veins(self, image_path):
-        # Read the image
-        org_image = cv2.imread(image_path)
-        
-        # Your vein detection logic here
-        
-        # For demonstration, return the original image
-        return org_image
-        
-    def display_image(self, image):
-        # Convert the image from OpenCV format to PIL format
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image_pil = Image.fromarray(image)
-        
-        # Resize the image to fit the window if necessary
-        max_width = 800
-        if image_pil.width > max_width:
-            image_pil.thumbnail((max_width, max_width), Image.ANTIALIAS)
-        
-        # Convert the image to tkinter format
-        image_tk = ImageTk.PhotoImage(image_pil)
-        
-        # Update the label to display the image
-        self.image_label.configure(image=image_tk)
-        self.image_label.image = image_tk
-            
+            image_name = os.path.basename(self.uploaded_image_path)
+            destination_path = os.path.join("model", image_name)
+            if not os.path.exists("model"):
+                os.makedirs("model")
+            shutil.copyfile(self.uploaded_image_path, destination_path)
+            model_file = "model/fistula_detection.py"  # Assuming the model is stored in this file
+            self.execute_ml_model(model_file, destination_path)  
+
     def upload_image(self):
         file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Image File", filetypes=(("Image Files", "*.png *.jpg *.jpeg *.gif"), ("All Files", "*.*")))
         if file_path:
+            print("Selected file:", file_path)
             self.uploaded_image_path = file_path
         
-# Create the GUI
-root = tk.Tk()
-detection_page = DetectionPage(root, None)
-detection_page.pack(fill="both", expand=True)
-root.mainloop()
+    def execute_ml_model(self, model_file, image_file):
+        subprocess.Popen(["python", model_file, image_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+class MainApplication(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.title("Hand Fistula detection")
+        self.geometry("1000x700")
+        
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
+        self.frames = {}
+        pages = (DetectionPage,)
+        for F in pages:
+            page_name = F.__name__
+            frame = F(container, self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+        
+        self.show_frame("DetectionPage")
+    
+    def show_frame(self, name):
+        frame = self.frames[name]
+        frame.tkraise()
+        
+if __name__ == "__main__":
+    app = MainApplication()
+    app.mainloop()

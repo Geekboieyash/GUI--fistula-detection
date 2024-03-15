@@ -2,10 +2,16 @@ import numpy as np
 import cv2
 import os
 
+# Define the path to the image file
+script_dir = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(script_dir, "handimage.png")
+output_dir = os.path.join(script_dir, "output")
+
+# Ensure that the output directory exists
+os.makedirs(output_dir, exist_ok=True)
 # #Preprocessing the images
 
 def morphology_diff(contrast_green, clahe):
-
     # 1st
     open1 = cv2.morphologyEx(contrast_green, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5)), iterations=1)
     close1 = cv2.morphologyEx(open1, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5)), iterations=1)
@@ -77,15 +83,19 @@ def detect_vessel(org_image):
     return fin_image, cv2.merge((blue, green, red))
 
 if __name__ == "__main__":
-    data_catalog = "data"
-    raw_catalog = "raw_vessels"
-    vessel_catalog = "vessels_images"
-    files_names = [x for x in os.listdir(data_catalog) if os.path.isfile(os.path.join(data_catalog, x))]
-    files_names.sort()
-
-    for file_name in files_names:
-        out_name = file_name.split('.')[0]
-        org_image = cv2.imread(data_catalog + '/' + file_name)
+    # Load the image file
+    org_image = cv2.imread(image_path)
+    if org_image is None:
+        print(f"Error: Image file '{image_path}' not found.")
+    else:
+        # Perform vessel detection
         raw_vessel, vessel_image = detect_vessel(org_image)
-        cv2.imwrite(raw_catalog + '/' + out_name + ".JPG", raw_vessel)
-        cv2.imwrite(vessel_catalog + '/' + out_name + ".JPG", vessel_image)
+        
+        # Save the results
+        out_name = os.path.splitext(os.path.basename(image_path))[0]
+        raw_vessel_path = os.path.join(output_dir, f"{out_name}_raw_vessel.jpg")
+        vessel_image_path = os.path.join(output_dir, f"{out_name}_vessel_image.jpg")
+        cv2.imwrite(raw_vessel_path, raw_vessel)
+        cv2.imwrite(vessel_image_path, vessel_image)
+        
+        print("Output files saved successfully.")
