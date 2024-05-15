@@ -33,7 +33,7 @@ class RegisterPage(tk.Frame):
         login_button = tk.Button(container, text="Login", command=self.login, bg='#4CAF50', fg='#ffffff')
         login_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
 
-        button = tk.Button(container, text="Register", command=lambda: self.get_signup(), bg='#4CAF50', fg='#ffffff')
+        button = tk.Button(container, text="Register", command=lambda: SignupPage(), bg='#4CAF50', fg='#ffffff')
         button.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
         self.image_label = tk.Label(self)

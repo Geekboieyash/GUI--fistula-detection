@@ -4,7 +4,7 @@ import os
 
 # Define the path to the image file
 script_dir = os.path.dirname(os.path.abspath(__file__))
-image_path = os.path.join(script_dir, "handimage.png")
+image_path = os.path.join(script_dir, "handimage4.png")
 output_dir = os.path.join(script_dir, "output")
 
 # Ensure that the output directory exists
@@ -90,7 +90,6 @@ if __name__ == "__main__":
     else:
         # Perform vessel detection
         raw_vessel, vessel_image = detect_vessel(org_image)
-        
         # Save the results
         out_name = os.path.splitext(os.path.basename(image_path))[0]
         raw_vessel_path = os.path.join(output_dir, f"{out_name}_raw_vessel.jpg")

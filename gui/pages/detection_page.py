@@ -5,6 +5,7 @@ from tkinter import messagebox
 import os
 import shutil
 import subprocess
+import sys
 
 class DetectionPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -45,7 +46,9 @@ class DetectionPage(tk.Frame):
                 os.makedirs("model")
             shutil.copyfile(self.uploaded_image_path, destination_path)
             model_file = "model/fistula_detection.py"  # Assuming the model is stored in this file
-            self.execute_ml_model(model_file, destination_path)  
+            self.execute_ml_model(model_file, destination_path)
+        else: 
+            messagebox.showerror("Error", "Please upload an image first.")  
 
     def upload_image(self):
         file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Image File", filetypes=(("Image Files", "*.png *.jpg *.jpeg *.gif"), ("All Files", "*.*")))
@@ -54,7 +57,30 @@ class DetectionPage(tk.Frame):
             self.uploaded_image_path = file_path
         
     def execute_ml_model(self, model_file, image_file):
-        subprocess.Popen(["python", model_file, image_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            # Build the command to execute the model script with the image file as an argument
+            command = [sys.executable, model_file, image_file]
+
+            # Execute the command and capture output
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            # Wait for the process to finish
+            stdout, stderr = process.communicate()
+
+            # Check the return code of the process
+            return_code = process.returncode
+
+            if return_code == 0:
+                print("Model execution successful.")
+                print("Output:")
+                print(stdout.decode())
+            else:
+                print("Model execution failed.")
+                print("Error:")
+                print(stderr.decode())
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 class MainApplication(tk.Tk):
     def __init__(self, *args, **kwargs):
